@@ -1,14 +1,15 @@
-# Todo App (Clean Architecture + Minimal API + Aspire)
+# Todo App (ASP.NET 10 web API + Angular frontend + Aspire)
 
 ## Overview
 
 This is a **TODO list application** demonstrating modern .NET 10 architecture with:
 
-- **Clean Architecture**: Domain, Application, Infrastructure, Presentation
-- **Minimal API** in .NET 10
-- **Mediator pattern (MediatR)** for commands/queries
+- **Clean Architecture**: Domain, Application, Infrastructure, WebAPI
+- **Minimal API** in ASP.NET 10
+- **Mediator pattern ([Mediator](https://github.com/martinothamar/Mediator))** for commands/queries
+- **Modern, responsive frontend** with Angular and DaisyUI
 - **Aspire orchestration** (`AppHost`)
-- **Observability / telemetry** through a reusable `ServiceDefaults` project
+- **Observability/telemetry** through a reusable `ServiceDefaults` project
 - **Testable design**: unit tests for Application, integration tests for WebAPI
 
 The app allows users to:
@@ -16,6 +17,7 @@ The app allows users to:
 - View TODO items
 - Add TODO items
 - Delete TODO items
+- Toggle TODO items
 
 Data is stored **in-memory** for this assignment, but the structure is ready to support a database in the future.
 
