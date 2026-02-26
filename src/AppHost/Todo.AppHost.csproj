@@ -2,6 +2,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\WebAPI\Todo.WebAPI.csproj" />
+    <ProjectReference Include="..\Gateway\Todo.Gateway.csproj" />
   </ItemGroup>
 
   <ItemGroup>
