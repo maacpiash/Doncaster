@@ -480,3 +480,6 @@ $RECYCLE.BIN/
 
 # Vim temporary swap files
 *.swp
+
+# Generated frontend assets in Gateway
+src/Gateway/wwwroot/
