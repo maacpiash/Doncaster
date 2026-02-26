@@ -1,0 +1,145 @@
+<div class="min-h-screen bg-base-200 py-8 px-4">
+	<div class="max-w-4xl mx-auto">
+		<!-- Header -->
+		<div class="text-center mb-8">
+			<h1 class="text-4xl font-bold text-primary mb-2">Todo App</h1>
+			<p class="text-base-content/60">Manage your tasks efficiently</p>
+		</div>
+
+		<!-- Stats -->
+		@if (todos().length > 0) {
+			<div class="stats stats-horizontal shadow w-full mb-6 bg-base-100">
+				<div class="stat">
+					<div class="stat-title">Total Tasks</div>
+					<div class="stat-value text-primary">{{ todos().length }}</div>
+				</div>
+				<div class="stat">
+					<div class="stat-title">Remaining</div>
+					<div class="stat-value text-warning">{{ remainingCount }}</div>
+				</div>
+				<div class="stat">
+					<div class="stat-title">Completed</div>
+					<div class="stat-value text-success">{{ completedCount }}</div>
+				</div>
+			</div>
+		}
+
+		<!-- Error Alert -->
+		@if (error()) {
+			<div role="alert" class="alert alert-error mb-6">
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					class="stroke-current shrink-0 h-6 w-6"
+					fill="none"
+					viewBox="0 0 24 24"
+				>
+					<path
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						stroke-width="2"
+						d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
+					/>
+				</svg>
+				<span>{{ error() }}</span>
+				<button class="btn btn-sm btn-ghost" (click)="error.set(null)">✕</button>
+			</div>
+		}
+
+		<!-- Form -->
+		<div class="card bg-base-100 shadow-xl mb-6">
+			<div class="card-body">
+				<h2 class="card-title text-lg mb-4">Add New Task</h2>
+				<form (ngSubmit)="addTodo()" class="flex gap-2">
+					<input
+						type="text"
+						placeholder="What needs to be done?"
+						class="input input-bordered flex-1"
+						[value]="newTodoTitle()"
+						(input)="newTodoTitle.set($any($event.target).value)"
+						[disabled]="isLoading()"
+						required
+					/>
+					<button type="submit" class="btn btn-primary" [disabled]="isLoading() || !newTodoTitle().trim()">
+						@if (isLoading()) {
+							<span class="loading loading-spinner loading-sm"></span>
+						}
+						Add Task
+					</button>
+				</form>
+			</div>
+		</div>
+
+		<!-- List -->
+		<div class="card bg-base-100 shadow-xl">
+			<div class="card-body">
+				<h2 class="card-title text-lg mb-4">Your Tasks</h2>
+
+				@if (isLoading() && todos().length === 0) {
+					<div class="flex justify-center py-12">
+						<span class="loading loading-spinner loading-lg text-primary"></span>
+					</div>
+				} @else if (todos().length === 0) {
+					<div class="text-center py-12">
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							class="h-16 w-16 mx-auto text-base-content/30 mb-4"
+							fill="none"
+							viewBox="0 0 24 24"
+							stroke="currentColor"
+						>
+							<path
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								stroke-width="2"
+								d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+							/>
+						</svg>
+						<p class="text-base-content/60 text-lg">No tasks.</p>
+					</div>
+				} @else {
+					<div class="space-y-2">
+						@for (todo of todos(); track todo.id) {
+							<div
+								class="flex items-center gap-3 p-4 rounded-lg border border-base-300 hover:bg-base-200 transition-colors"
+							>
+								<input
+									type="checkbox"
+									[checked]="todo.isCompleted"
+									(change)="toggleTodo(todo)"
+									class="checkbox checkbox-primary"
+								/>
+								<span
+									class="flex-1 text-base"
+									[class.line-through]="todo.isCompleted"
+									[class.text-base-content/50]="todo.isCompleted"
+								>
+									{{ todo.title }}
+								</span>
+								<button
+									(click)="deleteTodo(todo.id)"
+									class="btn btn-ghost btn-sm btn-circle text-error hover:bg-error/10"
+									title="Delete task"
+								>
+									<svg
+										xmlns="http://www.w3.org/2000/svg"
+										class="h-5 w-5"
+										fill="none"
+										viewBox="0 0 24 24"
+										stroke="currentColor"
+									>
+										<path
+											stroke-linecap="round"
+											stroke-linejoin="round"
+											stroke-width="2"
+											d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+										/>
+									</svg>
+								</button>
+							</div>
+						}
+					</div>
+				}
+			</div>
+		</div>
+	</div>
+</div>
