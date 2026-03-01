@@ -23,6 +23,10 @@ Data is stored **in-memory** for this assignment, but the structure is ready to 
 
 ## How to run
 
+The project can be run in development mode or production mode.
+
+### Development mode
+
 In the root directory (where Todo.slnx file is), run the following command:
 
 ```sh
@@ -33,6 +37,36 @@ Then, run
 
 ```sh
 dotnet run --project src/AppHost
+```
+
+### Production mode
+
+First, generate SSL certificates:
+
+```sh
+./generate-certs.sh
+```
+
+Then, duplicate the env file:
+
+```sh
+cp .env.example .env
+```
+
+Finally, run the Docker Compose command:
+
+```sh
+docker compose -f docker-compose.yml -f docker-compose.local.yml up --build -d
+```
+
+The frontend should be reachable at https://localhost.
+
+The `--build` flag is only needed the first time this command is run, or when the code has been changed since the last time the command was run with this flag.
+
+To turn everything off:
+
+```sh
+docker compose down
 ```
 
 ## Architecture & Design
@@ -59,6 +93,15 @@ WebAPI -> Application + Infrastructure + ServiceDefaults
 Infrastructure -> Application
 Application -> Domain
 ```
+
+## Production
+
+The production build includes:
+
+- PostgreSQL and Entity Framework Core for persistence
+- Docker and Docker Compose for orchestration
+- YARP for reverse proxy
+- Grafana, OTel Collector, Prometheus, Loki, and Tempo for telemetry (logs, metrics, traces etc.)
 
 ## Testing
 
