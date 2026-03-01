@@ -1,4 +1,4 @@
-# Todo App (ASP.NET 10 web API + Angular frontend + Aspire)
+# Todo App (ASP.NET 10 web API + Angular frontend)
 
 ## Overview
 
