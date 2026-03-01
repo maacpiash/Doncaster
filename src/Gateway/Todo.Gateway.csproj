@@ -5,6 +5,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="LettuceEncrypt" Version="1.3.3" />
     <PackageReference Include="Microsoft.Extensions.ServiceDiscovery.Yarp" Version="10.1.0" />
     <PackageReference Include="Yarp.ReverseProxy" Version="2.3.0" />
   </ItemGroup>
@@ -16,13 +17,11 @@
     <FrontendDistPath>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\Frontend\dist\Frontend\browser'))</FrontendDistPath>
   </PropertyGroup>
 
-  <Target Name="CopyFrontendAssets" BeforeTargets="Build" Condition="Exists('$(FrontendDistPath)')">
+  <Target Name="CopyFrontendAssets" BeforeTargets="Build" Condition="'$(SkipFrontendCopy)' != 'true' AND Exists('$(FrontendDistPath)')">
     <ItemGroup>
       <FrontendFiles Include="$(FrontendDistPath)\**\*" />
     </ItemGroup>
-    <Copy SourceFiles="@(FrontendFiles)"
-          DestinationFiles="@(FrontendFiles->'$(MSBuildThisFileDirectory)wwwroot\%(RecursiveDir)%(Filename)%(Extension)')"
-          SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(FrontendFiles)" DestinationFiles="@(FrontendFiles->'$(MSBuildThisFileDirectory)wwwroot\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
   </Target>
 
 </Project>

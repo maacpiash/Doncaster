@@ -1,0 +1,13 @@
+# Local override: self-signed certs instead of LettuceEncrypt.
+# Usage: docker compose -f docker-compose.yml -f docker-compose.local.yml up --build -d
+# Run ./generate-certs.sh first to create the self-signed certificate.
+services:
+  gateway:
+    environment:
+      LettuceEncrypt__DomainNames__0: ""
+      LettuceEncrypt__EmailAddress: ""
+      AllowedHosts: "*"
+      ASPNETCORE_Kestrel__Certificates__Default__Path: /app/certs/cert.pfx
+      ASPNETCORE_Kestrel__Certificates__Default__Password: ${CERT_PASSWORD:-changeit}
+    volumes:
+      - ./docker/certs:/app/certs:ro
