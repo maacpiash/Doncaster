@@ -6,6 +6,9 @@
 # dotenv files
 .env
 
+# SSL certificates (generated locally)
+docker/certs/
+
 # User-specific files
 *.rsuser
 *.suo
@@ -480,3 +483,6 @@ $RECYCLE.BIN/
 
 # Vim temporary swap files
 *.swp
+
+# Generated frontend assets in Gateway
+src/Gateway/wwwroot/
