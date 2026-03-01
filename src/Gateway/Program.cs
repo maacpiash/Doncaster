@@ -5,8 +5,14 @@ var builder = WebApplication.CreateBuilder(args);
 builder.AddServiceDefaults();
 
 if (!builder.Environment.IsDevelopment())
-    builder.Services.AddLettuceEncrypt()
-        .PersistDataToDirectory(new DirectoryInfo("/app/certs"), null);
+{
+    var domainNames = builder.Configuration.GetSection("LettuceEncrypt:DomainNames").Get<string[]>() ?? [];
+    var hasRealDomain = domainNames.Length > 0 && domainNames[0] is not ("" or "localhost");
+
+    if (hasRealDomain)
+        builder.Services.AddLettuceEncrypt()
+            .PersistDataToDirectory(new DirectoryInfo("/app/certs"), null);
+}
 
 builder.Services.AddReverseProxy()
     .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"))

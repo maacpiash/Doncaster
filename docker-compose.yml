@@ -39,9 +39,9 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Production
       ASPNETCORE_URLS: https://+:443;http://+:80
-      LettuceEncrypt__DomainNames__0: ${DOMAIN_NAME:?Set DOMAIN_NAME in .env}
-      LettuceEncrypt__EmailAddress: admin@${DOMAIN_NAME}
-      AllowedHosts: ${DOMAIN_NAME}
+      LettuceEncrypt__DomainNames__0: ${DOMAIN_NAME:-localhost}
+      LettuceEncrypt__EmailAddress: admin@${DOMAIN_NAME:-localhost}
+      AllowedHosts: ${DOMAIN_NAME:-localhost}
       ReverseProxy__Clusters__backend-cluster__Destinations__backend__Address: http://backend:8080
       OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
       OTEL_EXPORTER_OTLP_PROTOCOL: grpc
