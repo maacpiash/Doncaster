@@ -25,7 +25,7 @@ public static class Extensions
 
         builder.AddDefaultHealthChecks();
 
-        builder.Services.AddInfrastructure();
+        builder.Services.AddInfrastructure(builder.Configuration);
 
         builder.Services.AddServiceDiscovery();
 
@@ -49,25 +49,32 @@ public static class Extensions
 
     public static TBuilder ConfigureOpenTelemetry<TBuilder>(this TBuilder builder) where TBuilder : IHostApplicationBuilder
     {
-        // Use this block to create an HttpClient handler that trusts the Aspire dashboard's self-signed certificate
-        // Otherwise the structured logs, metrics, and traces may not show up in the respective pages
-        Action<OtlpExporterOptions> configureExporter = options =>
-        {
-            options.HttpClientFactory = () =>
+        // In dev, the Aspire dashboard OTLP endpoint uses a self-signed certificate.
+        // We need to trust it or telemetry won't show up in the dashboard.
+        // In prod, the OTel Collector uses plain HTTP — no custom handler needed.
+        var isDev = builder.Environment.IsDevelopment();
+        Action<OtlpExporterOptions>? configureExporter = isDev
+            ? options =>
             {
-                var handler = new HttpClientHandler
+                options.HttpClientFactory = () =>
                 {
-                    ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+                    var handler = new HttpClientHandler
+                    {
+                        ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+                    };
+                    return new HttpClient(handler);
                 };
-                return new HttpClient(handler);
-            };
-        };
+            }
+        : null;
 
         builder.Logging.AddOpenTelemetry(logging =>
         {
             logging.IncludeFormattedMessage = true;
             logging.IncludeScopes = true;
-            logging.AddOtlpExporter(configureExporter);
+            if (configureExporter is not null)
+                logging.AddOtlpExporter(configureExporter);
+            else
+                logging.AddOtlpExporter();
         });
 
         builder.Services.AddOpenTelemetry()
@@ -75,8 +82,11 @@ public static class Extensions
             {
                 metrics.AddAspNetCoreInstrumentation()
                     .AddHttpClientInstrumentation()
-                    .AddRuntimeInstrumentation()
-                    .AddOtlpExporter(configureExporter);
+                    .AddRuntimeInstrumentation();
+                if (configureExporter is not null)
+                    metrics.AddOtlpExporter(configureExporter);
+                else
+                    metrics.AddOtlpExporter();
             })
             .WithTracing(tracing =>
             {
@@ -87,8 +97,11 @@ public static class Extensions
                             !context.Request.Path.StartsWithSegments(HealthEndpointPath)
                             && !context.Request.Path.StartsWithSegments(AlivenessEndpointPath)
                     )
-                    .AddHttpClientInstrumentation()
-                    .AddOtlpExporter(configureExporter);
+                    .AddHttpClientInstrumentation();
+                if (configureExporter is not null)
+                    tracing.AddOtlpExporter(configureExporter);
+                else
+                    tracing.AddOtlpExporter();
             });
 
         return builder;
@@ -105,19 +118,12 @@ public static class Extensions
 
     public static WebApplication MapDefaultEndpoints(this WebApplication app)
     {
-        // Adding health checks endpoints to applications in non-development environments has security implications.
-        // See https://aka.ms/dotnet/aspire/healthchecks for details before enabling these endpoints in non-development environments.
-        if (app.Environment.IsDevelopment())
-        {
-            // All health checks must pass for app to be considered ready to accept traffic after starting
-            app.MapHealthChecks(HealthEndpointPath);
+        app.MapHealthChecks(HealthEndpointPath);
 
-            // Only health checks tagged with the "live" tag must pass for app to be considered alive
-            app.MapHealthChecks(AlivenessEndpointPath, new HealthCheckOptions
-            {
-                Predicate = r => r.Tags.Contains("live")
-            });
-        }
+        app.MapHealthChecks(AlivenessEndpointPath, new HealthCheckOptions
+        {
+            Predicate = r => r.Tags.Contains("live")
+        });
 
         return app;
     }

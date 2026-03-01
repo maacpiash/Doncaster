@@ -1,17 +1,17 @@
 using Mediator;
 using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.EntityFrameworkCore;
 using Todo.Application.Features.AddTodo;
 using Todo.Application.Features.GetTodos;
 using Todo.Application.Features.ToggleTodo;
 using Todo.Application.Features.DeleteTodo;
 using Todo.Domain.Exceptions;
-using Todo.Infrastructure;
+using Todo.Infrastructure.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
 builder.Services.AddMediator();
-builder.Services.AddInfrastructure();
 builder.Services.AddProblemDetails();
 
 builder.Services.AddCors(options =>
@@ -20,6 +20,14 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
+
+// Auto-apply EF Core migrations on startup when using PostgreSQL
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetService<TodoDbContext>();
+    if (db is not null)
+        await db.Database.MigrateAsync();
+}
 
 app.UseCors();
 
