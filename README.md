@@ -116,7 +116,5 @@ dotnet test
 
 ## Next Steps / Extensibility
 
-- Swap in **EF Core / SQL Server** by implementing `ITodoRepository` in Infrastructure and wiring DI in AppHost.
-- Add a gateway such as YARP for a reverse proxy to serve the frontend as static assets.
 - Expand AppHost orchestration to include background jobs or multiple APIs.
 - Add authentication and authorisation.
